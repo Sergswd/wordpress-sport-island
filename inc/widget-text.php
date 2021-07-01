@@ -15,7 +15,7 @@ class SI_Widget_Text extends WP_Widget{
   public function form( $instance ) {
     ?>
       <p>
-        <label for="<?php echo $this->get_field_id('text'); ?>">
+        <label for="<?php echo $this->get_field_id('id-text'); ?>">
           Введите текст:
         </label>
         <input
