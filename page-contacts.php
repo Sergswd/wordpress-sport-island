@@ -11,7 +11,8 @@ Template Name: Шаблон для страницы контактов
     </div>
     <section class="contacts">
     <?php 
-      while(have_posts()):
+    if( have_posts() ):
+      while( have_posts() ):
         the_post();
     ?>
       <div class="wrapper">
@@ -58,6 +59,7 @@ Template Name: Шаблон для страницы контактов
       </div>
     <?php 
       endwhile;
+    endif;
     ?>
     </section>
   </main>
