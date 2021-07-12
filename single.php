@@ -23,7 +23,12 @@
       <p> Значимость этих проблем настолько очевидна, что новая модель организационной деятельности в значительной степени обуславливает создание модели развития. Разнообразный и богатый опыт постоянный количественный рост и сфера нашей активности способствует подготовки и реализации систем массового участия. Идейные соображения высшего порядка, а также дальнейшее развитие различных форм деятельности в значительной степени обуславливает создание системы обучения кадров, соответствует насущным потребностям. </p>
       <footer class="main-article__footer">
         <time datetime="<?php echo get_the_date('Y-m-d'); ?>"><?php echo get_the_date('d F Y'); ?></time>
-        <a href="#" class="main-article__like like">
+        <button 
+          class="main-article__like like"
+          style="background-color: transparent; border: none; font: inherit; font-size: 16px; cursor: pointer;"
+          data-href="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
+          data-id="<?php echo $id; ?>"
+        >
           <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 51.997 51.997" style="enable-background:new 0 0 51.997 51.997;" xml:space="preserve">
             <style> path{
               fill: #666;
@@ -41,7 +46,75 @@
               echo $likes ? $likes : 0;
             ?>
           </span>
-        </a>
+        </button>
+        <script>
+          window.addEventListener('load', function() {
+            const likeBtn = document.querySelector('.like');
+            const postID = likeBtn.getAttribute('data-id');
+            try {
+              if ( !localStorage.getItem('liked') ) {
+                localStorage.setItem('liked', '');
+              }
+            } catch(e) {
+              console.log(e);
+            }
+            function getAboutLike( id ) {
+              let hasLike = false;
+              try {
+                hasLike = localStorage.getItem('liked')
+                                      .split(',')
+                                      .includes(id);
+              } catch(e) {
+                console.log(e);
+              }
+              return hasLike;
+            }
+            let hasLike = getAboutLike( postID );
+            if (hasLike) {
+              likeBtn.classList.add('like_liked');
+            }
+            likeBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              let hasLike = getAboutLike(postID);
+              likeBtn.disabled = true;
+              const data = new FormData();
+              data.append('action', 'post-likes');
+              let todo = hasLike ? 'minus' : 'plus';
+              data.append('todo', todo);
+              data.append('id', postID);
+              const xhr = new XMLHttpRequest();
+              xhr.open('POST', likeBtn.getAttribute('data-href'));
+              xhr.send(data);
+              xhr.addEventListener('readystatechange', function() {
+                if (xhr.readyState !== 4) return;
+                if (xhr.status === 200) {
+                  likeBtn.querySelector('.like__count').innerText = xhr.responseText;
+                  let localData = localStorage.getItem('liked');
+                  let newData = '';
+                  if (hasLike) {
+                    newData = localData.split(',')
+                                       .filter(function(el) {
+                                         return el !== postID;
+                                       })
+                                       .join(',');
+                  } else {
+                    newData = localData.split(',')
+                                       .filter(function(el) {
+                                         return el !== '';
+                                       })
+                                       .concat(postID)
+                                       .join(',');
+                  }
+                  localStorage.setItem('liked', newData);
+                  likeBtn.classList.toggle('like_liked');
+                } else {
+                  console.log(xhr.statusText);
+                }
+                likeBtn.disabled = false;
+              });
+            })
+          });
+        </script>
       </footer>
     </article>
     <?php 
