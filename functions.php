@@ -113,7 +113,7 @@ function si_register_types() {
   register_post_type('services', [
     'labels' => [
 			'name'               => 'Услуги', // основное название для типа записи
-			'singular_name'      => 'Услуги', // название для одной записи этого типа
+			'singular_name'      => 'Услуга', // название для одной записи этого типа
 			'add_new'            => 'Добавить новую услугу', // для добавления новой записи
 			'add_new_item'       => 'Добавить новую услугу', // заголовка у вновь создаваемой записи в админ-панели.
 			'edit_item'          => 'Редактировать услугу', // для редактирования типа записи
@@ -136,7 +136,7 @@ function si_register_types() {
   register_post_type('trainers', [
     'labels' => [
 			'name'               => 'Тренеры', // основное название для типа записи
-			'singular_name'      => 'Тренеры', // название для одной записи этого типа
+			'singular_name'      => 'Тренер', // название для одной записи этого типа
 			'add_new'            => 'Добавить нового тренера', // для добавления новой записи
 			'add_new_item'       => 'Добавить нового тренера', // заголовка у вновь создаваемой записи в админ-панели.
 			'edit_item'          => 'Редактировать тренера', // для редактирования типа записи
@@ -159,7 +159,7 @@ function si_register_types() {
   register_post_type('schedule', [
     'labels' => [
 			'name'               => 'Занятия', // основное название для типа записи
-			'singular_name'      => 'Занятия', // название для одной записи этого типа
+			'singular_name'      => 'Занятие', // название для одной записи этого типа
 			'add_new'            => 'Добавить новое занятие', // для добавления новой записи
 			'add_new_item'       => 'Добавить новое занятие', // заголовка у вновь создаваемой записи в админ-панели.
 			'edit_item'          => 'Редактировать занятие', // для редактирования типа записи
@@ -183,7 +183,7 @@ function si_register_types() {
 		'label'                 => '', // определяется параметром $labels->name
 		'labels'                => [
 			'name'              => 'Дни недели',
-			'singular_name'     => 'Дни недели',
+			'singular_name'     => 'День',
 			'search_items'      => 'Найти день недели',
 			'all_items'         => 'Все дни недели',
 			'view_item '        => 'Посмотреть дни недели',
@@ -202,7 +202,7 @@ function si_register_types() {
 		'label'                 => '', // определяется параметром $labels->name
 		'labels'                => [
 			'name'              => 'Залы',
-			'singular_name'     => 'Залы',
+			'singular_name'     => 'Зал',
 			'search_items'      => 'Найти залы',
 			'all_items'         => 'Все залы',
 			'view_item '        => 'Посмотреть залы',
@@ -220,7 +220,7 @@ function si_register_types() {
   register_post_type('prices', [
     'labels' => [
 			'name'               => 'Прайсы', // основное название для типа записи
-			'singular_name'      => 'Прайсы', // название для одной записи этого типа
+			'singular_name'      => 'Прайс', // название для одной записи этого типа
 			'add_new'            => 'Добавить новые прайсы', // для добавления новой записи
 			'add_new_item'       => 'Добавить новые прайсы', // заголовка у вновь создаваемой записи в админ-панели.
 			'edit_item'          => 'Редактировать прайсы', // для редактирования типа записи
@@ -242,8 +242,8 @@ function si_register_types() {
 
   register_post_type('cards', [
     'labels' => [
-			'name'               => 'Карты', // основное название для типа записи
-			'singular_name'      => 'Карты', // название для одной записи этого типа
+			'name'               => 'Клубные карты', // основное название для типа записи
+			'singular_name'      => 'Клубная карта', // название для одной записи этого типа
 			'add_new'            => 'Добавить новую карту', // для добавления новой записи
 			'add_new_item'       => 'Добавить новую карту', // заголовка у вновь создаваемой записи в админ-панели.
 			'edit_item'          => 'Редактировать карту', // для редактирования типа записи
@@ -353,9 +353,23 @@ function si_meta_like_cb( $post_obj ) {
 
 function si_order_fields_cb( $post_obj, $slug ) {
   $slug = $slug['args'];
-  $data = get_post_meta( $post_obj->ID, $slug, true );
-  $data = $data ? $data : 'Нет данных';
-  echo '<span>' . $data . '</span>';
+  $data = '';
+  switch( $slug ) {
+    case 'si_order_date':
+      $data = $post_obj->post_date;
+    break;
+    case 'si_order_choice':
+      $id = get_post_meta( $post_obj->ID, $slug, true );
+      $title = get_the_title( $id );
+      $type = get_post_type_object( get_post_type($id) )->labels->name;
+      $data = 'Клиент выбрал: <strong>' . $title . '</strong>. <br>Из раздела: <strong>' . $type . '</strong>';
+    break;
+    default:
+      $data = get_post_meta( $post_obj->ID, $slug, true );
+      $data = $data ? $data : 'Нет данных';
+    break;
+  }
+  echo '<p>' . $data . '</p>';
 }
 
 // function si_save_like_meta( $post_id ) {
