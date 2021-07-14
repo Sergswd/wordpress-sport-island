@@ -52,7 +52,7 @@
             const likeBtn = document.querySelector('.like');
             const postID = likeBtn.getAttribute('data-id');
             try {
-              if ( !localStorage.getItem('liked') ) {
+              if ( ! localStorage.getItem('liked') ) {
                 localStorage.setItem('liked', '');
               }
             } catch(e) {
@@ -61,9 +61,7 @@
             function getAboutLike( id ) {
               let hasLike = false;
               try {
-                hasLike = localStorage.getItem('liked')
-                                      .split(',')
-                                      .includes(id);
+                hasLike = localStorage.getItem('liked').split(',').includes(id);
               } catch(e) {
                 console.log(e);
               }
@@ -76,7 +74,6 @@
             likeBtn.addEventListener('click', function(e) {
               e.preventDefault();
               let hasLike = getAboutLike(postID);
-              likeBtn.disabled = true;
               const data = new FormData();
               data.append('action', 'post-likes');
               let todo = hasLike ? 'minus' : 'plus';
@@ -85,6 +82,7 @@
               const xhr = new XMLHttpRequest();
               xhr.open('POST', likeBtn.getAttribute('data-href'));
               xhr.send(data);
+              likeBtn.disabled = true;
               xhr.addEventListener('readystatechange', function() {
                 if (xhr.readyState !== 4) return;
                 if (xhr.status === 200) {
@@ -93,14 +91,14 @@
                   let newData = '';
                   if (hasLike) {
                     newData = localData.split(',')
-                                       .filter(function(el) {
-                                         return el !== postID;
+                                       .filter(function(id) {
+                                         return id !== postID;
                                        })
                                        .join(',');
                   } else {
                     newData = localData.split(',')
-                                       .filter(function(el) {
-                                         return el !== '';
+                                       .filter(function(id) {
+                                         return id !== '';
                                        })
                                        .concat(postID)
                                        .join(',');

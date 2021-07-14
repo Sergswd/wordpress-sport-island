@@ -24,8 +24,10 @@ add_action('admin_post_si-modal-form', 'si_modal_form_handler');
 add_action('wp_ajax_nopriv_post-likes', 'si_likes');
 add_action('wp_ajax_post-likes', 'si_likes');
 add_shortcode('si-paste-link', 'si_paste_link');
+add_action('manage_posts_custom_column', 'si_like_column', 5, 2);
 
 add_filter('show_admin_bar', '__return_false');
+add_filter('manage_posts_columns', 'si_add_col_likes');
 add_filter('si_widget_text', 'do_shortcode');
 
 function si_setup() {
@@ -303,8 +305,8 @@ function si_meta_boxes() {
 function si_meta_like_cb( $post_obj ) {
   $likes = get_post_meta( $post_obj->ID, 'si-like', true );
   $likes = $likes ? $likes : 0;
-  echo "<input type=\"text\" name=\"si-like\" value=\"${likes}\">";
-  // echo '<p>' . $likes . '</p>';
+  // echo "<input type=\"text\" name=\"si-like\" value=\"${likes}\">";
+  echo '<p>' . $likes . '</p>';
 }
 
 function si_save_like_meta( $post_id ) {
@@ -347,8 +349,36 @@ function si_modal_form_handler() {
 }
 
 function si_likes() {
-  echo 'Всё получили';
-  wp_die();
+  $id = $_POST['id'];
+  $todo = $_POST['todo'];
+  $current_data = get_post_meta($id, 'si-like', true);
+  $current_data = $current_data ? $current_data : 0;
+  if ( $todo === 'plus' ) {
+    $current_data++;
+  } else {
+    $current_data--;
+  }
+  $res = update_post_meta($id, 'si-like', $current_data);
+  if ($res) {
+    echo $current_data;
+    wp_die();
+  } else {
+    wp_die('Лайк не сохранился, ошибка на сервере. Попробуйте ещё раз', 500);
+  }
+}
+
+function si_like_column($col_name, $id) {
+  if ($col_name !== 'col_likes') return;
+  $likes = get_post_meta( $id, 'si-like', true);
+  echo $likes ? $likes : 0;
+}
+
+function si_add_col_likes($defaults) {
+  $type = get_current_screen();
+  if ($type->post_type === 'post') {
+    $defaults['col_likes'] = 'Лайки';
+  }
+  return $defaults;
 }
 
 function _si_assets_path($path){
