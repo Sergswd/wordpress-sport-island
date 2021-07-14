@@ -276,7 +276,7 @@ function si_register_types() {
 			'not_found'          => 'Не найдено', // если в результате поиска ничего не было найдено
 			'not_found_in_trash' => 'Не найдено в корзине', // если не было найдено в корзине
 			'parent_item_colon'  => '', // для родителей (у древовидных типов)
-			'menu_name'          => 'Заявка', // название меню
+			'menu_name'          => 'Заявки', // название меню
 		],
 		'public'              => false,
     'show_ui'             => true,
@@ -394,6 +394,31 @@ function si_option_slogan_cb( $args ) {
 }
 
 function si_modal_form_handler() {
+  $name = $_POST['si-user-name'] ? $_POST['si-user-name'] : 'Аноним';
+  $phone = $_POST['si-user-phone'] ? $_POST['si-user-phone'] : false;
+  $choice = $_POST['form-post-id'] ? $_POST['form-post-id'] : 'empty';
+  if ( $phone ) {
+    $name = wp_strip_all_tags($name);
+    $phone = wp_strip_all_tags($phone);
+    $choice = wp_strip_all_tags($choice);
+    $id = wp_insert_post(wp_slash([
+      'post_title'  => 'Заявка № ',
+      'post_type'  => 'orders',
+      'post_status' => 'publish',
+      'meta_input'  => [
+        'si_order_name'   => $name,
+        'si_order_phone'  => $phone,
+        'si_order_choice' => $choice
+      ]
+    ]));
+    if ( $id !== 0 ) {
+      wp_update_post([
+        'ID' => $id,
+        'post_title' => 'Заявка № ' . $id
+      ]);
+      update_field('orders_status', 'new', $id);
+    }
+  }
   header('Location: ' . home_url());
 }
 
