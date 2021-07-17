@@ -18,15 +18,16 @@
   <body class="<?php echo $body_class; ?>">
     <header class="main-header">
       <div class="wrapper main-header__wrap">
-        <?php the_custom_logo(); ?>
+        <!-- <?php the_custom_logo(); ?> -->
+        <a href="http://fitness-medic.loc/" class="custom-logo-link" style='width: 182px; height: 17px; color: white; font-size: 26px; line-height: 19px; font-weight: bold;'>Fitness<span style="color: #c50c0c;">Medic</span></a>
     
         <?php 
           wp_nav_menu([
-            'theme_location' => 'menu-header',
-            'container' => 'nav',
+            'theme_location'  => 'menu-header',
+            'container'       => 'nav',
             'container_class' => 'main-navigation',
-            'menu_class' => 'main-navigation__list',
-            'items_wrap' => '<ul class="%2$s">%3$s</ul>'
+            'menu_class'      => 'main-navigation__list',
+            'items_wrap'      => '<ul class="%2$s">%3$s</ul>'
           ]);
         ?>
         
